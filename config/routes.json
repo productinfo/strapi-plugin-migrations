@@ -26,7 +26,7 @@
     },
     {
       "method": "GET",
-      "path": "/migrations/actions/export",
+      "path": "/migrations/actions/create",
       "handler": "DataMigration.createMigration",
       "config": {
         "policies": []
@@ -34,7 +34,7 @@
     },
     {
       "method": "GET",
-      "path": "/migrations/:version/import",
+      "path": "/migrations/:version/read",
       "handler": "DataMigration.importMigration",
       "config": {
         "policies": []
@@ -44,6 +44,22 @@
       "method": "POST",
       "path": "/migrations/:version/clone",
       "handler": "DataMigration.cloneMigrationData",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/migrations/:version/actions/export",
+      "handler": "DataMigration.generateLocalData",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/migrations/:version/actions/import",
+      "handler": "DataMigration.readLocalData",
       "config": {
         "policies": []
       }

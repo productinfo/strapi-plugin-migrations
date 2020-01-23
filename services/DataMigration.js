@@ -82,5 +82,5 @@ module.exports = {
       error: errors[code],
       message
     };
-  }
+  },
 };
