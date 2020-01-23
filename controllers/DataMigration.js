@@ -152,18 +152,20 @@ module.exports = {
     }
 
     let componentCount = 0;
-    const componentGroups = await fs.readdir("./components");
     const componentShape = [];
 
-    await forEach(componentGroups, async group => {
-      const components = await fs.readdir(`./components/${group}`);
-      componentCount = componentCount + components.length;
+    if (componentsExist) {
+      const componentGroups = await fs.readdir("./components");
+      await forEach(componentGroups, async group => {
+        const components = await fs.readdir(`./components/${group}`);
+        componentCount = componentCount + components.length;
 
-      componentShape.push({
-        group,
-        components: components.map(value => value.replace(".json", ""))
+        componentShape.push({
+          group,
+          components: components.map(value => value.replace(".json", ""))
+        });
       });
-    });
+    }
 
     const meta = {
       info: {
