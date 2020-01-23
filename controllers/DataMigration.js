@@ -300,8 +300,8 @@ module.exports = {
           .query(type)
           .find(
             filter
-              ? { ...filter, _start: count === 1 ? 0 : i * 10 }
-              : { _start: count === 1 ? 0 : i * 10 }
+              ? { ...filter, _start: (count - 1) * 10, _limit: 10 }
+              : { _limit: 10, _start: (count - 1) * 10 }
           );
 
         const data = await fs.readJSON(
