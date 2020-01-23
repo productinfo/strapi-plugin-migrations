@@ -167,6 +167,12 @@ module.exports = {
       });
     }
 
+    const extensionsExist = await fs.exists('./migrations');
+
+    if (extensionsExist) {
+      await fs.copy('./extensions', `./migrations/${version}/extensions`);
+    }
+
     const meta = {
       info: {
         version,
@@ -210,11 +216,16 @@ module.exports = {
       return;
     }
 
+    const extensionsExist = await fs.exists(`./migrations/${version}/extensions`);
     const typesExist = await fs.exists(`./migrations/${version}/types`);
     const adminExist = await fs.exists(`./migrations/${version}/admin`);
     const componentsExist = await fs.exists(
       `./migrations/${version}/components`
     );
+
+    if (extensionsExist) {
+      await fs.copy(`./migrations/${version}/extensions`, './extensions');
+    }
 
     if (typesExist) {
       const types = await fs.readdir(`./migrations/${version}/types`);
