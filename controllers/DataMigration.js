@@ -256,6 +256,104 @@ module.exports = {
 
   /**
    * @description
+   * Generates .json files with the data of the content-types.
+   * usually is imported with the migration.
+   */
+  generateLocalData: async ctx => {
+    const { version } = ctx.params;
+    const { filters } = ctx.request.body;
+    const exists = await migrationExists(version);
+
+    if (!exists) {
+      ctx.status = 404;
+      ctx.body = makeError(
+        404,
+        `The migration with version code "${version}" could not be found`
+      );
+      return;
+    }
+
+    /**
+     * migrate the data for each content-type
+     */
+    const types = await fs.readdir(`./migrations/${version}/types`);
+    await forEach(types, async type => {
+      await fs.createFile(
+        `./migrations/${version}/types/${type}/models/migration-data.json`
+      );
+
+      await fs.writeJSON(
+        `./migrations/${version}/types/${type}/models/migration-data.json`,
+        [],
+        { spaces: "" }
+      );
+
+      const count = await strapi.query(type).count();
+
+      for (let i = 0; i < (Math.ceil(count) * 20) / 20; i++) {
+        const filter = filters[type];
+        const results = await strapi.query(type).find(filter ? filter : {});
+
+        const data = await fs.readFile(
+          `./migrations/${version}/types/${type}/models/migration-data.json`
+        );
+
+        data.push(results);
+        await fs.writeJSON(
+          `./migrations/${version}/types/${type}/models/migration-data.json`,
+          data,
+          {
+            spaces: ""
+          }
+        );
+      }
+    });
+
+    ctx.status = 200;
+    ctx.send({
+      message: `Data migration complete`
+    });
+  },
+
+  /**
+   * @description
+   * Imports the files from `generateLocalData`.
+   */
+  readLocalData: async () => {
+    const { version } = ctx.params;
+    const exists = await migrationExists(version);
+
+    if (!exists) {
+      ctx.status = 404;
+      ctx.body = makeError(
+        404,
+        `The migration with version code "${version}" could not be found`
+      );
+      return;
+    }
+
+    /**
+     * migrate the data for each content-type
+     */
+    const types = await fs.readdir(`./migrations/${version}/types`);
+    await forEach(types, async type => {
+      const results = await fs.readJSON(
+        `./migrations/${version}/types/${type}/models/migration-data.json`
+      );
+
+      for (let i = 0; i <= results.length - 1; i++) {
+        await strapi.query(type).create(results[i]);
+      }
+    });
+
+    ctx.status = 200;
+    ctx.send({
+      message: `Data migration complete`
+    });
+  },
+
+  /**
+   * @description
    * Alter content-types or components after they have been exported.
    */
   editMigration: async ctx => {
