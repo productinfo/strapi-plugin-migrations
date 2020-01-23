@@ -8,8 +8,7 @@
     "description": "Export / Import Content-Types directly from strapi."
   },
   "dependencies": {
-    "fs-extra": "^8.1.0",
-    "mongoose": "^5.8.7"
+    "fs-extra": "^8.1.0"
   },
   "author": {
     "name": "Fabio Nettis",
