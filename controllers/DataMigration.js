@@ -285,14 +285,13 @@ module.exports = {
       const data = [];
       let count = await strapi.query(type).count({});
       count = count < 10 ? 1 : Math.round(count / 10);
-      let filter =  false;
+      let filter = false;
 
       if (filters && filters[type]) {
         filter = filters[type];
       }
 
       await forEach(new Array(count), async () => {
-        
         const results = await strapi
           .query(`${type}`)
           .find(
@@ -301,7 +300,7 @@ module.exports = {
               : { _limit: 10, _start: (count - 1) * 10 }
           );
 
-          data.push(...results);
+        data.push(...results);
       });
 
       await fs.writeJSON(
@@ -357,7 +356,7 @@ module.exports = {
 
   /**
    * @description
-   * Alter content-types or components after they have been exported.
+   * Alter content-types after they have been exported.
    */
   editMigration: async ctx => {
     const { version } = ctx.params;
@@ -383,50 +382,48 @@ module.exports = {
     await forEach(shapes, async entry => {
       const { type, shape } = entry;
 
-      if (type === "model") {
-        const { name } = shape.info;
-        await fs.writeJSON(
+      const { name, exportAs } = shape.info;
+      if (exportAs && exportAs !== name) {
+        await fs.rename(
           `./migrations/${version}/types/${name}/models/${name}.settings.json`,
-          shape,
-          {
-            spaces: " "
-          }
+          `./migrations/${version}/types/${name}/models/${exportAs}.settings.json`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${name}/models/${name}.js`,
+          `./migrations/${version}/types/${name}/models/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${name}/controllers/${name}.js`,
+          `./migrations/${version}/types/${name}/controllers/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${name}/services/${name}.js`,
+          `./migrations/${version}/types/${name}/services/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${name}`,
+          `./migrations/${version}/types/${exportAs}`
         );
       }
 
-      // components_test_compas
-      if (type === "component") {
-        const { collectionName } = shape;
-        const separation = collectionName.split("_");
-        const name = separation[2];
-        const group = separation[1];
-        await fs.writeJSON(
-          `./migrations/${version}/components/${group}/${name}.json`,
-          shape,
-          {
-            spaces: " "
-          }
-        );
-      }
-
-      if (!type || (type !== "component" && type !== "model")) {
-        errors.push(
-          makeError(
-            422,
-            "Please provide a valid shape type (model, component)."
-          )
-        );
-      }
+      await fs.writeJSON(
+        `./migrations/${version}/types/${exportAs ? exportAs : name}/models/${
+          exportAs ? exportAs : name
+        }.settings.json`,
+        shape,
+        {
+          spaces: " "
+        }
+      );
     });
 
-    if (errors.length > 0) {
-      ctx.status = 422;
-      ctx.body = makeError(422, errors);
-    } else {
-      ctx.status = 200;
-      ctx.body = {
-        shapes
-      };
-    }
+    ctx.status = 200;
+    ctx.body = {
+      shapes
+    };
   }
 };
