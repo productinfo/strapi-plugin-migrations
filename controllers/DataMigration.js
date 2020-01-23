@@ -12,7 +12,12 @@
 
 require("strapi");
 const fs = require("fs-extra");
-const { forEach, makeError } = require("../helpers");
+
+const {
+  forEach,
+  makeError,
+  migrationExists
+} = require("../services/DataMigration");
 
 module.exports = {
   /**
@@ -21,18 +26,19 @@ module.exports = {
    */
   getMigrationVersions: async ctx => {
     const payload = [];
-    const exists = await fs.exists("./migrations");
+    const exists = await migrationExists();
 
     if (!exists) {
       return ctx.send([]);
     }
 
     const versions = await fs.readdir("./migrations");
+
     await forEach(versions, async version => {
       const shapes = await fs.readdir(`./migrations/${version}/types`);
       payload.push({
         version,
-        shapes,
+        shapes
       });
     });
 
@@ -45,7 +51,7 @@ module.exports = {
    */
   getMigrationDetails: async ctx => {
     const { version } = ctx.params;
-    const exists = await fs.exists(`./migrations/${version}`);
+    const exists = await migrationExists(version);
 
     if (!exists) {
       ctx.status = 404;
@@ -68,7 +74,7 @@ module.exports = {
    */
   deleteMigration: async ctx => {
     const { version } = ctx.params;
-    const exists = await fs.exists(`./migrations/${version}`);
+    const exists = await migrationExists(version);
 
     if (!exists) {
       ctx.status = 404;
@@ -89,7 +95,7 @@ module.exports = {
     const { override } = ctx.query;
     const packageJson = await fs.readJSON("./package.json");
     const version = packageJson.dependencies.strapi;
-    const exists = await fs.exists(`./migrations/${version}`);
+    const exists = await migrationExists(version);
 
     /**
      * don't overide existing migrations by default
@@ -191,7 +197,7 @@ module.exports = {
    */
   importMigration: async ctx => {
     const { version } = ctx.params;
-    const exists = await fs.exists(`./migrations/${version}`);
+    const exists = await migrationExists(version);
 
     if (!exists) {
       ctx.status = 404;
@@ -255,7 +261,7 @@ module.exports = {
   editMigration: async ctx => {
     const { version } = ctx.params;
     const { shapes } = ctx.request.body;
-    const exists = await fs.exists(`./migrations/${version}`);
+    const exists = await migrationExists(version);
 
     if (!exists) {
       ctx.status = 404;
