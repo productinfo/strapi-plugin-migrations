@@ -288,17 +288,28 @@ module.exports = {
         { spaces: "" }
       );
 
-      const count = await strapi.query(type).count();
+      let count = await strapi.query(type).count();
+      count = count < 1 ? 1 : Math.round(count / 10);
 
-      for (let i = 0; i < (Math.ceil(count) * 20) / 20; i++) {
+      console.log(count);
+
+      for (let i = 0; i === count; i++) {
+        console.log('ran')
         const filter = filters[type];
-        const results = await strapi.query(type).find(filter ? filter : {});
+        const results = await strapi
+          .query(type)
+          .find(
+            filter
+              ? { ...filter, _start: count === 1 ? 0 : i * 10 }
+              : { _start: count === 1 ? 0 : i * 10 }
+          );
 
-        const data = await fs.readFile(
+        const data = await fs.readJSON(
           `./migrations/${version}/types/${type}/models/migration-data.json`
         );
 
         data.push(results);
+        
         await fs.writeJSON(
           `./migrations/${version}/types/${type}/models/migration-data.json`,
           data,
