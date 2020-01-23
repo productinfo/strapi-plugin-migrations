@@ -1,5 +1,5 @@
 {
-  "name": "strapi-plugin-data",
+  "name": "strapi-plugin-migrations",
   "version": "0.0.0",
   "description": "This plugin allows you to migrate your content-types as well as their data between different strapi versions.",
   "strapi": {
@@ -8,8 +8,7 @@
     "description": "Export / Import Content-Types directly from strapi."
   },
   "dependencies": {
-    "fs-extra": "^8.1.0",
-    "mongoose": "^5.8.7"
+    "fs-extra": "^8.1.0"
   },
   "author": {
     "name": "Fabio Nettis",

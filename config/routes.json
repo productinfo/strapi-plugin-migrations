@@ -2,72 +2,72 @@
   "routes": [
     {
       "method": "GET",
-      "path": "/migrations",
-      "handler": "DataMigration.getMigrationVersions",
+      "path": "/",
+      "handler": "Migrations.getMigrationVersions",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/migrations/:version",
-      "handler": "DataMigration.getMigrationDetails",
+      "path": "/:version",
+      "handler": "Migrations.getMigrationDetails",
       "config": {
         "policies": []
       }
     },
     {
       "method": "DELETE",
-      "path": "/migrations/:version",
-      "handler": "DataMigration.deleteMigration",
+      "path": "/:version",
+      "handler": "Migrations.deleteMigration",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/migrations/actions/create",
-      "handler": "DataMigration.createMigration",
+      "path": "/actions/create",
+      "handler": "Migrations.createMigration",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/migrations/:version/read",
-      "handler": "DataMigration.importMigration",
+      "path": "/:version/read",
+      "handler": "Migrations.importMigration",
       "config": {
         "policies": []
       }
     },
     {
       "method": "POST",
-      "path": "/migrations/:version/clone",
-      "handler": "DataMigration.cloneMigrationData",
+      "path": "/:version/clone",
+      "handler": "Migrations.cloneMigrationData",
       "config": {
         "policies": []
       }
     },
     {
       "method": "POST",
-      "path": "/migrations/:version/actions/export",
-      "handler": "DataMigration.generateLocalData",
+      "path": "/:version/actions/export",
+      "handler": "Migrations.generateLocalData",
       "config": {
         "policies": []
       }
     },
     {
       "method": "GET",
-      "path": "/migrations/:version/actions/import",
-      "handler": "DataMigration.readLocalData",
+      "path": "/:version/actions/import",
+      "handler": "Migrations.readLocalData",
       "config": {
         "policies": []
       }
     },
     {
       "method": "PATCH",
-      "path": "/migrations/:version/edit",
-      "handler": "DataMigration.editMigration",
+      "path": "/:version",
+      "handler": "Migrations.editMigration",
       "config": {
         "policies": []
       }
