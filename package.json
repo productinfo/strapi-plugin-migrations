@@ -1,5 +1,5 @@
 {
-  "name": "strapi-plugin-data",
+  "name": "strapi-plugin-migrations",
   "version": "0.0.0",
   "description": "This plugin allows you to migrate your content-types as well as their data between different strapi versions.",
   "strapi": {

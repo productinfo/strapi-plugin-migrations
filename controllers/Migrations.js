@@ -17,7 +17,7 @@ const {
   forEach,
   makeError,
   migrationExists
-} = require("../services/DataMigration");
+} = require("../services/Migrations");
 
 module.exports = {
   /**
