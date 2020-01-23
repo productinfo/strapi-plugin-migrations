@@ -279,48 +279,40 @@ module.exports = {
     const types = await fs.readdir(`./migrations/${version}/types`);
     await forEach(types, async type => {
       await fs.createFile(
-        `./migrations/${version}/types/${type}/models/migration-data.json`
+        `./migrations/${version}/types/${type}/${type}.data.json`
       );
 
-      await fs.writeJSON(
-        `./migrations/${version}/types/${type}/models/migration-data.json`,
-        [],
-        { spaces: "" }
-      );
+      const data = [];
+      let count = await strapi.query(type).count({});
+      count = count < 10 ? 1 : Math.round(count / 10);
+      let filter =  false;
 
-      let count = await strapi.query(type).count();
-      count = count < 1 ? 1 : Math.round(count / 10);
+      if (filters && filters[type]) {
+        filter = filters[type];
+      }
 
-      console.log(count);
-
-      for (let i = 0; i === count; i++) {
-        console.log('ran')
-        const filter = filters[type];
+      await forEach(new Array(count), async () => {
+        
         const results = await strapi
-          .query(type)
+          .query(`${type}`)
           .find(
             filter
               ? { ...filter, _start: (count - 1) * 10, _limit: 10 }
               : { _limit: 10, _start: (count - 1) * 10 }
           );
 
-        const data = await fs.readJSON(
-          `./migrations/${version}/types/${type}/models/migration-data.json`
-        );
+          data.push(...results);
+      });
 
-        data.push(results);
-        
-        await fs.writeJSON(
-          `./migrations/${version}/types/${type}/models/migration-data.json`,
-          data,
-          {
-            spaces: ""
-          }
-        );
-      }
+      await fs.writeJSON(
+        `./migrations/${version}/types/${type}/${type}.data.json`,
+        data,
+        {
+          spaces: ""
+        }
+      );
     });
 
-    ctx.status = 200;
     ctx.send({
       message: `Data migration complete`
     });
@@ -330,7 +322,7 @@ module.exports = {
    * @description
    * Imports the files from `generateLocalData`.
    */
-  readLocalData: async () => {
+  readLocalData: async ctx => {
     const { version } = ctx.params;
     const exists = await migrationExists(version);
 
@@ -349,12 +341,12 @@ module.exports = {
     const types = await fs.readdir(`./migrations/${version}/types`);
     await forEach(types, async type => {
       const results = await fs.readJSON(
-        `./migrations/${version}/types/${type}/models/migration-data.json`
+        `./migrations/${version}/types/${type}/${type}.data.json`
       );
 
-      for (let i = 0; i <= results.length - 1; i++) {
-        await strapi.query(type).create(results[i]);
-      }
+      await forEach(results, async result => {
+        await strapi.query(type).create(result);
+      });
     });
 
     ctx.status = 200;
