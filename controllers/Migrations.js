@@ -417,40 +417,37 @@ module.exports = {
 
     const errors = [];
     await forEach(shapes, async entry => {
-      const { type, shape } = entry;
+      const { shape, name, exportAs } = entry;
 
-      const { name, exportAs } = shape.info;
       if (exportAs && exportAs !== name) {
-        await fs.rename(
-          `./migrations/${version}/types/${name}/models/${name}.settings.json`,
-          `./migrations/${version}/types/${name}/models/${exportAs}.settings.json`
-        );
-
-        await fs.rename(
-          `./migrations/${version}/types/${name}/models/${name}.js`,
-          `./migrations/${version}/types/${name}/models/${exportAs}.js`
-        );
-
-        await fs.rename(
-          `./migrations/${version}/types/${name}/controllers/${name}.js`,
-          `./migrations/${version}/types/${name}/controllers/${exportAs}.js`
-        );
-
-        await fs.rename(
-          `./migrations/${version}/types/${name}/services/${name}.js`,
-          `./migrations/${version}/types/${name}/services/${exportAs}.js`
-        );
-
         await fs.rename(
           `./migrations/${version}/types/${name}`,
           `./migrations/${version}/types/${exportAs}`
         );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/models/${name}.settings.json`,
+          `./migrations/${version}/types/${exportAs}/models/${exportAs}.settings.json`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/models/${name}.js`,
+          `./migrations/${version}/types/${exportAs}/models/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/controllers/${name}.js`,
+          `./migrations/${version}/types/${exportAs}/controllers/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/services/${name}.js`,
+          `./migrations/${version}/types/${exportAs}/services/${exportAs}.js`
+        );
       }
 
       await fs.writeJSON(
-        `./migrations/${version}/types/${exportAs ? exportAs : name}/models/${
-          exportAs ? exportAs : name
-        }.settings.json`,
+        `./migrations/${version}/types/${exportAs}/models/${exportAs}.settings.json`,
         shape,
         {
           spaces: " "
