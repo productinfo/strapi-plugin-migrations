@@ -84,6 +84,11 @@ module.exports = {
       );
       return;
     }
+
+    await fs.remove(`./migrations/${version}`);
+
+    ctx.status = 200;
+    ctx.body = makeError(200, "Migration deleted successfully.");
   },
 
   /**
@@ -167,10 +172,10 @@ module.exports = {
       });
     }
 
-    const extensionsExist = await fs.exists('./migrations');
+    const extensionsExist = await fs.exists("./migrations");
 
     if (extensionsExist) {
-      await fs.copy('./extensions', `./migrations/${version}/extensions`);
+      await fs.copy("./extensions", `./migrations/${version}/extensions`);
     }
 
     const meta = {
@@ -216,7 +221,9 @@ module.exports = {
       return;
     }
 
-    const extensionsExist = await fs.exists(`./migrations/${version}/extensions`);
+    const extensionsExist = await fs.exists(
+      `./migrations/${version}/extensions`
+    );
     const typesExist = await fs.exists(`./migrations/${version}/types`);
     const adminExist = await fs.exists(`./migrations/${version}/admin`);
     const componentsExist = await fs.exists(
@@ -224,7 +231,7 @@ module.exports = {
     );
 
     if (extensionsExist) {
-      await fs.copy(`./migrations/${version}/extensions`, './extensions');
+      await fs.copy(`./migrations/${version}/extensions`, "./extensions");
     }
 
     if (typesExist) {
