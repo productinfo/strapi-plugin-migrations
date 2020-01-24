@@ -98,6 +98,7 @@ module.exports = {
    */
   createMigration: async ctx => {
     const { override } = ctx.query;
+    const { exports } = ctx.request.body;
     const packageJson = await fs.readJSON("./package.json");
     const version = packageJson.dependencies.strapi;
     const exists = await migrationExists(version);
@@ -114,6 +115,12 @@ module.exports = {
       return;
     }
 
+    if (!exports || exports.length === 0) {
+      ctx.status = 422;
+      ctx.body = makeError(422, `Please provide models to export.`);
+      return;
+    }
+
     /**
      * overide existing
      */
@@ -127,7 +134,17 @@ module.exports = {
      * is no sense in exporting.
      */
     let types = await fs.readdir("./api");
-    types = types.filter(value => value !== ".gitkeep");
+    types = types.filter(
+      value =>
+        value !== ".gitkeep" &&
+        exports.filter(name => name === value).length > 0
+    );
+
+    if (types.length === 0) {
+      ctx.status = 404;
+      ctx.body = makeError(404, "Could not find anything to export.");
+      return;
+    }
 
     const adminExists = await fs.exists("./admin");
     const componentsExist = await fs.exists("./components");
