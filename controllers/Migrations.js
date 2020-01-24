@@ -455,6 +455,15 @@ module.exports = {
           `./migrations/${version}/types/${name}`,
           `./migrations/${version}/types/${exportAs}`
         );
+        
+        const dataExists = await fs.exists(`./migrations/${version}/types/${exportAs}/${name}.data.json`);
+        
+        if (dataExists) {
+          await fs.rename(
+            `./migrations/${version}/types/${exportAs}/${name}.data.json`,
+            `./migrations/${version}/types/${exportAs}/${exportAs}.data.json`
+          );
+        }
 
         await fs.rename(
           `./migrations/${version}/types/${exportAs}/models/${name}.settings.json`,

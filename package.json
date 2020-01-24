@@ -10,16 +10,28 @@
   "dependencies": {
     "fs-extra": "^8.1.0"
   },
-  "author": {
-    "name": "Fabio Nettis",
-    "email": "nettisfabio@gmail.com",
-    "url": "https://github.com/fabio-nettis/strapi-plugin-data"
-  },
+  "authors": [
+    {
+      "name": "Fabio Nettis",
+      "email": "nettisfabio@gmail.com",
+      "url": "https://github.com/fabio-nettis"
+    },
+    {
+      "name": "Pouya Miralayi",
+      "email": "pouyamiralayi@gmail.com",
+      "url": "https://github.com/pouyamiralayi"
+    }
+  ],
   "maintainers": [
     {
       "name": "Fabio Nettis",
       "email": "nettisfabio@gmail.com",
       "url": "https://github.com/fabio-nettis/strapi-plugin-data"
+    },
+    {
+      "name": "Pouya Miralayi",
+      "email": "pouyamiralayi@gmail.com",
+      "url": "https://github.com/pouyamiralayi"
     }
   ],
   "engines": {
