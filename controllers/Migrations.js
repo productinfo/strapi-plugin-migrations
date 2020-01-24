@@ -360,6 +360,7 @@ module.exports = {
    */
   readLocalData: async ctx => {
     const { version } = ctx.params;
+    const { removeReference } = ctx.query;
     const exists = await migrationExists(version);
 
     if (!exists) {
@@ -381,6 +382,36 @@ module.exports = {
       );
 
       await forEach(results, async result => {
+        if (removeReference) {
+          if (result.created_at) {
+            delete result.created_at;
+          }
+
+          if (result.updated_at) {
+            delete result.updated_at;
+          }
+
+          if (result.updatedAt) {
+            delete result.updatedAt;
+          }
+
+          if (result.createdAt) {
+            delete result.createdAt;
+          }
+
+          if (result.id) {
+            delete result.id;
+          }
+
+          if (result._id) {
+            delete result._id;
+          }
+
+          if (result.__v) {
+            delete result.__v;
+          }
+        }
+
         await strapi.query(type).create(result);
       });
     });
