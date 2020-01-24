@@ -115,7 +115,7 @@ module.exports = {
       return;
     }
 
-    if (!exports || exports.length === 0) {
+    if (exports && exports.length === 0) {
       ctx.status = 422;
       ctx.body = makeError(422, `Please provide models to export.`);
       return;
@@ -135,9 +135,15 @@ module.exports = {
      */
     let types = await fs.readdir("./api");
     types = types.filter(
-      value =>
-        value !== ".gitkeep" &&
-        exports.filter(name => name === value).length > 0
+      value => {
+        if (value !== ".gitkeep") {
+          return value !== ".gitkeep";
+        }
+        
+        if (exports && exports.filter(name => name === value).length > 0) {
+          return exports && exports.filter(name => name === value).length > 0;
+        }
+      }
     );
 
     if (types.length === 0) {
