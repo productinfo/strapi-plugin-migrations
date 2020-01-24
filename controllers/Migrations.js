@@ -84,6 +84,11 @@ module.exports = {
       );
       return;
     }
+
+    await fs.remove(`./migrations/${version}`);
+
+    ctx.status = 200;
+    ctx.body = makeError(200, "Migration deleted successfully.");
   },
 
   /**
@@ -93,6 +98,7 @@ module.exports = {
    */
   createMigration: async ctx => {
     const { override } = ctx.query;
+    const { exports } = ctx.request.body;
     const packageJson = await fs.readJSON("./package.json");
     const version = packageJson.dependencies.strapi;
     const exists = await migrationExists(version);
@@ -109,6 +115,12 @@ module.exports = {
       return;
     }
 
+    if (!exports || exports.length === 0) {
+      ctx.status = 422;
+      ctx.body = makeError(422, `Please provide models to export.`);
+      return;
+    }
+
     /**
      * overide existing
      */
@@ -122,7 +134,17 @@ module.exports = {
      * is no sense in exporting.
      */
     let types = await fs.readdir("./api");
-    types = types.filter(value => value !== ".gitkeep");
+    types = types.filter(
+      value =>
+        value !== ".gitkeep" &&
+        exports.filter(name => name === value).length > 0
+    );
+
+    if (types.length === 0) {
+      ctx.status = 404;
+      ctx.body = makeError(404, "Could not find anything to export.");
+      return;
+    }
 
     const adminExists = await fs.exists("./admin");
     const componentsExist = await fs.exists("./components");
@@ -167,10 +189,10 @@ module.exports = {
       });
     }
 
-    const extensionsExist = await fs.exists('./migrations');
+    const extensionsExist = await fs.exists("./migrations");
 
     if (extensionsExist) {
-      await fs.copy('./extensions', `./migrations/${version}/extensions`);
+      await fs.copy("./extensions", `./migrations/${version}/extensions`);
     }
 
     const meta = {
@@ -216,7 +238,9 @@ module.exports = {
       return;
     }
 
-    const extensionsExist = await fs.exists(`./migrations/${version}/extensions`);
+    const extensionsExist = await fs.exists(
+      `./migrations/${version}/extensions`
+    );
     const typesExist = await fs.exists(`./migrations/${version}/types`);
     const adminExist = await fs.exists(`./migrations/${version}/admin`);
     const componentsExist = await fs.exists(
@@ -224,7 +248,7 @@ module.exports = {
     );
 
     if (extensionsExist) {
-      await fs.copy(`./migrations/${version}/extensions`, './extensions');
+      await fs.copy(`./migrations/${version}/extensions`, "./extensions");
     }
 
     if (typesExist) {
@@ -336,6 +360,7 @@ module.exports = {
    */
   readLocalData: async ctx => {
     const { version } = ctx.params;
+    const { removeReference } = ctx.query;
     const exists = await migrationExists(version);
 
     if (!exists) {
@@ -357,6 +382,36 @@ module.exports = {
       );
 
       await forEach(results, async result => {
+        if (removeReference) {
+          if (result.created_at) {
+            delete result.created_at;
+          }
+
+          if (result.updated_at) {
+            delete result.updated_at;
+          }
+
+          if (result.updatedAt) {
+            delete result.updatedAt;
+          }
+
+          if (result.createdAt) {
+            delete result.createdAt;
+          }
+
+          if (result.id) {
+            delete result.id;
+          }
+
+          if (result._id) {
+            delete result._id;
+          }
+
+          if (result.__v) {
+            delete result.__v;
+          }
+        }
+
         await strapi.query(type).create(result);
       });
     });
@@ -393,40 +448,37 @@ module.exports = {
 
     const errors = [];
     await forEach(shapes, async entry => {
-      const { type, shape } = entry;
+      const { shape, name, exportAs } = entry;
 
-      const { name, exportAs } = shape.info;
       if (exportAs && exportAs !== name) {
-        await fs.rename(
-          `./migrations/${version}/types/${name}/models/${name}.settings.json`,
-          `./migrations/${version}/types/${name}/models/${exportAs}.settings.json`
-        );
-
-        await fs.rename(
-          `./migrations/${version}/types/${name}/models/${name}.js`,
-          `./migrations/${version}/types/${name}/models/${exportAs}.js`
-        );
-
-        await fs.rename(
-          `./migrations/${version}/types/${name}/controllers/${name}.js`,
-          `./migrations/${version}/types/${name}/controllers/${exportAs}.js`
-        );
-
-        await fs.rename(
-          `./migrations/${version}/types/${name}/services/${name}.js`,
-          `./migrations/${version}/types/${name}/services/${exportAs}.js`
-        );
-
         await fs.rename(
           `./migrations/${version}/types/${name}`,
           `./migrations/${version}/types/${exportAs}`
         );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/models/${name}.settings.json`,
+          `./migrations/${version}/types/${exportAs}/models/${exportAs}.settings.json`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/models/${name}.js`,
+          `./migrations/${version}/types/${exportAs}/models/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/controllers/${name}.js`,
+          `./migrations/${version}/types/${exportAs}/controllers/${exportAs}.js`
+        );
+
+        await fs.rename(
+          `./migrations/${version}/types/${exportAs}/services/${name}.js`,
+          `./migrations/${version}/types/${exportAs}/services/${exportAs}.js`
+        );
       }
 
       await fs.writeJSON(
-        `./migrations/${version}/types/${exportAs ? exportAs : name}/models/${
-          exportAs ? exportAs : name
-        }.settings.json`,
+        `./migrations/${version}/types/${exportAs}/models/${exportAs}.settings.json`,
         shape,
         {
           spaces: " "

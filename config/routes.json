@@ -25,7 +25,7 @@
       }
     },
     {
-      "method": "GET",
+      "method": "POST",
       "path": "/actions/create",
       "handler": "Migrations.createMigration",
       "config": {
