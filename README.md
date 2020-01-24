@@ -2,18 +2,6 @@
 
 This plugin allows you to migrate your content-types as well as their data between different strapi versions.
 
-*   **[Basic interaction](#Basicinteraction)**
-    *   [Create Migration](#jump-Basicinteraction-CreateMigration)
-    *   [Get Migrations](#jump-Basicinteraction-GetMigrations)
-    *   [Get Migration By Version](#jump-Basicinteraction-GetMigrationByVersion)
-    *   [Delete Migration By Version](#jump-Basicinteraction-DeleteMigrationByVersion)
-*   **[Data interaction](#Datainteraction)**
-    *   [Create Migration Data](#jump-Datainteraction-CreateMigrationData)
-    *   [Read Migration Data](#jump-Datainteraction-ReadMigrationData)
-*   **[Type interaction](#Typeinteraction)**
-    *   [Edit Content Types](#jump-Typeinteraction-EditContentTypes)
-    *   [Import Content-Types](#jump-Typeinteraction-ImportContentTypes)
-
 ## **Create Migration**  |  **POST**   http://localhost:1337/migrations/actions/create
 
 ### Migrations.createMigration
