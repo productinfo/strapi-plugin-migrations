@@ -9,7 +9,7 @@
  * way to migrate content-types, components and their data
  * between different projects.
  */
-
+const _ = require('lodash');
 require("strapi");
 const fs = require("fs-extra");
 
@@ -456,7 +456,7 @@ module.exports = {
     await forEach(shapes, async entry => {
       const { shape, name, exportAs } = entry;
 
-      if (exportAs && exportAs !== name) {
+      if (exportAs && exportAs !== _.startCase(name)) {
         await fs.rename(
           `./migrations/${version}/types/${name}`,
           `./migrations/${version}/types/${exportAs}`
