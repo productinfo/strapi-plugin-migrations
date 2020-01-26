@@ -61,7 +61,7 @@ const ExportData = () => {
   const removeMigration = async (migration) => {
     console.log('remove', migration);
     try {
-      const res = await request('/migration/' + migration, {method: 'DELETE'});
+      const res = await request('/migrations/' + migration, {method: 'DELETE'});
       const newConfigOptions = configOptions.filter(c => {
         return c.title !== migration
       });
@@ -77,7 +77,7 @@ const ExportData = () => {
     console.log('detail');
     try {
       console.log('info', migration);
-      const res = await request('/migration/' + migration, {method: 'GET'});
+      const res = await request('/migrations/' + migration, {method: 'GET'});
       let ver;
       if (has(res, ['info'])) {
         ver = get(res, ['info', 'version'], "unknown version");
@@ -94,8 +94,8 @@ const ExportData = () => {
     console.log('run');
     try {
       console.log('run', migration);
-      const readRes = await request(`/migration/${migration}/read`, {method: 'GET'});
-      const res = await request(`/migration/${migration}/actions/import`, {method: 'GET'});
+      const readRes = await request(`/migrations/${migration}/read`, {method: 'GET'});
+      const res = await request(`/migrations/${migration}/actions/import`, {method: 'GET'});
       console.log(res);
       res.message && strapi.notification.success(res.message)
     } catch (e) {
@@ -150,7 +150,7 @@ const ExportData = () => {
         shapes.push({name: targetName, exportAs, shape: newShape});
       });
       toggleGenerationLoading(true);
-      const res = await request('/migration/actions/create?override=true', {
+      const res = await request('/migrations/actions/create?override=true', {
         method: "POST", body: {
           exports
         }
@@ -159,7 +159,7 @@ const ExportData = () => {
       if (has(res, ['info'])) {
         ver = get(res, ['info', 'version'], "unknown version");
       }
-      const createDataRes = await request(`/migration/${ver}/actions/export`, {
+      const createDataRes = await request(`/migrations/${ver}/actions/export`, {
         method: "POST", body: {
           filter: {}
         }
@@ -168,7 +168,7 @@ const ExportData = () => {
       // strapi.notification.info(`${ver} migration with ${get(res, ['types', 'count'], "?")} types and ${get(res, ['components', 'count'], "?")} components is ready!`);
       set(req, ["shapes"], shapes);
       // console.log('req:', req);
-      const editResult = await request(`/migration/${ver}`, {method: 'PATCH', body: req});
+      const editResult = await request(`/migrations/${ver}`, {method: 'PATCH', body: req});
       console.log('editResult:', editResult);
       strapi.notification.success("Migration for " + ver + " successfully generated.");
       toggleGenerationLoading(false);
@@ -192,7 +192,7 @@ const ExportData = () => {
         },
         {
           className: 'button-submit',
-          color: 'success',
+          color: 'primary',
           onClick: () => {
             sendGenerateRequest()
           },
@@ -226,7 +226,7 @@ const ExportData = () => {
           },
         }
     },
-    content: targetDescription,
+    content: targetDescription ? targetDescription : "There is no description",
   };
 
   useEffect(() => {
@@ -332,7 +332,7 @@ const ExportData = () => {
   };
 
   const getConfigs = async () => {
-    const configs = await request('/migration/', {method: 'GET'});
+    const configs = await request('/migrations/', {method: 'GET'});
     console.log('migrations: ', configs);
     const configOptions = configs.map(c => {
         return {
@@ -390,7 +390,7 @@ const ExportData = () => {
       <ListViewContext.Provider value={{state, dispatch}}>
         <div className={'container-fluid'}>
           <div className={'row'}>
-            <div className={'col-md-3'}>
+            <div className={'col-md-3'} style={{ paddingLeft: 20 }}>
               <ContentTypeTable
                 models={modelOptions}
                 configs={configOptions}
@@ -406,7 +406,7 @@ const ExportData = () => {
                 migrationDetail={migrationDetail}
               />
             </div>
-            <div className={'col-md-9 content'}>
+            <div className={'col-md-9 content'} style={{ backgroundColor: '#FAFAFB', paddingTop: 0 }}>
               {/*<Block*/}
               {/*  title="General"*/}
               {/*  description="Configure your content types for migration"*/}
@@ -441,8 +441,8 @@ const ExportData = () => {
                     {/*</Row>*/}
                     <Row>
                       {!isEmpty(modelOptions) && (
-                        <div style={{paddingRight: 18}}>
-                          <Header {...headerProps}/>
+                        <div style={{paddingLeft: 13, paddingRight: 13}}>
+                          <Header {...headerProps} />
                           <ContentTypeTree className={''}/>
                         </div>
                       )}
