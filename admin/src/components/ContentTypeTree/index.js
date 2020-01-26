@@ -10,7 +10,7 @@ import TreeRow from "../TreeRow";
 import FormModalEdit from "../FormModalEdit";
 import convertAttrObjToArray from "../../utils/convertAttrObjToArray";
 import getTrad from "../../utils/getTrad";
-import {MODELS} from "../../../../../import-content/admin/src/utils/constants";
+import {MODELS} from "../../utils/constants";
 
 const ContentTypeTree = () => {
   const {emitEvent, formatMessage} = useGlobalContext();
